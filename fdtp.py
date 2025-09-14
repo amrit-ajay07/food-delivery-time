@@ -1,4 +1,3 @@
-# app.py
 import streamlit as st
 import pandas as pd
 import joblib
@@ -9,9 +8,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import mean_squared_error, r2_score, root_mean_squared_error  # ✅ added root_mean_squared_error
+from sklearn.metrics import mean_squared_error, r2_score, root_mean_squared_error
 
-# Try importing XGBoost, fallback to GradientBoosting if unavailable
 try:
     from xgboost import XGBRegressor
     xgb_available = True
@@ -19,9 +17,6 @@ except ImportError:
     from sklearn.ensemble import GradientBoostingRegressor
     xgb_available = False
 
-# ------------------------------
-# Load dataset
-# ------------------------------
 @st.cache_data
 def load_data():
     df = pd.read_csv("Food_Delivery_Times.csv")
@@ -32,9 +27,6 @@ df = load_data()
 st.title("🍔 Food Delivery Time Predictor")
 st.write("This app predicts delivery time (in minutes) using Random Forest and XGBoost.")
 
-# ------------------------------
-# Features & target
-# ------------------------------
 FEATURES = [
     'Distance_km',
     'Weather',
@@ -58,7 +50,7 @@ numeric_transformer = Pipeline(steps=[
 categorical_features = ['Weather', 'Traffic_Level', 'Time_of_Day', 'Vehicle_Type']
 categorical_transformer = Pipeline(steps=[
     ('imputer', SimpleImputer(strategy='most_frequent')),
-    ('onehot', OneHotEncoder(handle_unknown='ignore', sparse_output=False))  # ✅ fixed param
+    ('onehot', OneHotEncoder(handle_unknown='ignore', sparse_output=False))
 ])
 
 preprocessor = ColumnTransformer(
@@ -68,19 +60,14 @@ preprocessor = ColumnTransformer(
     ]
 )
 
-# ------------------------------
-# Train models (only once, cache them)
-# ------------------------------
 @st.cache_resource
 def train_models():
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # Random Forest
     rf = RandomForestRegressor(n_estimators=120, max_depth=12, random_state=42, n_jobs=-1)
     rf_pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('regressor', rf)])
     rf_pipeline.fit(X_train, y_train)
 
-    # XGBoost (or GradientBoosting if not installed)
     if xgb_available:
         xgb = XGBRegressor(
             n_estimators=200,
@@ -96,10 +83,9 @@ def train_models():
     xgb_pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('regressor', xgb)])
     xgb_pipeline.fit(X_train, y_train)
 
-    # Evaluate
     def eval_model(model):
         preds = model.predict(X_test)
-        rmse = root_mean_squared_error(y_test, preds)  # ✅ fixed
+        rmse = root_mean_squared_error(y_test, preds)
         r2 = r2_score(y_test, preds)
         return rmse, r2
 
@@ -110,9 +96,6 @@ def train_models():
 
 rf_model, xgb_model, rf_metrics, xgb_metrics = train_models()
 
-# ------------------------------
-# Sidebar inputs
-# ------------------------------
 st.sidebar.header("🔧 Input Features")
 
 Distance_km = st.sidebar.number_input("Distance (km)", min_value=0.0, value=3.0, step=0.1)
@@ -126,9 +109,6 @@ Vehicle_Type = st.sidebar.selectbox("Vehicle Type", ["Bike", "Bike-2", "Car", "B
 
 model_choice = st.sidebar.radio("Choose Model", ["Random Forest", "XGBoost"])
 
-# ------------------------------
-# Prediction
-# ------------------------------
 input_df = pd.DataFrame([{
     'Distance_km': Distance_km,
     'Preparation_Time_min': Preparation_Time_min,
