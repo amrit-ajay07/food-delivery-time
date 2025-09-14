@@ -9,7 +9,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error, r2_score, root_mean_squared_error  # ✅ added root_mean_squared_error
 
 # Try importing XGBoost, fallback to GradientBoosting if unavailable
 try:
@@ -58,8 +58,7 @@ numeric_transformer = Pipeline(steps=[
 categorical_features = ['Weather', 'Traffic_Level', 'Time_of_Day', 'Vehicle_Type']
 categorical_transformer = Pipeline(steps=[
     ('imputer', SimpleImputer(strategy='most_frequent')),
-    ('onehot', OneHotEncoder(handle_unknown='ignore', sparse_output=False))
-
+    ('onehot', OneHotEncoder(handle_unknown='ignore', sparse_output=False))  # ✅ fixed param
 ])
 
 preprocessor = ColumnTransformer(
@@ -100,7 +99,7 @@ def train_models():
     # Evaluate
     def eval_model(model):
         preds = model.predict(X_test)
-        rmse = mean_squared_error(y_test, preds, squared=False)
+        rmse = root_mean_squared_error(y_test, preds)  # ✅ fixed
         r2 = r2_score(y_test, preds)
         return rmse, r2
 
@@ -158,4 +157,3 @@ st.write("---")
 st.subheader("📊 Model Test Performance")
 st.write(f"**Random Forest** — RMSE: {rf_metrics[0]:.2f}, R²: {rf_metrics[1]:.3f}")
 st.write(f"**XGBoost** — RMSE: {xgb_metrics[0]:.2f}, R²: {xgb_metrics[1]:.3f}")
-
