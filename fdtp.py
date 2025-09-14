@@ -58,7 +58,8 @@ numeric_transformer = Pipeline(steps=[
 categorical_features = ['Weather', 'Traffic_Level', 'Time_of_Day', 'Vehicle_Type']
 categorical_transformer = Pipeline(steps=[
     ('imputer', SimpleImputer(strategy='most_frequent')),
-    ('onehot', OneHotEncoder(handle_unknown='ignore', sparse=False))
+    ('onehot', OneHotEncoder(handle_unknown='ignore', sparse_output=False))
+
 ])
 
 preprocessor = ColumnTransformer(
@@ -157,3 +158,4 @@ st.write("---")
 st.subheader("📊 Model Test Performance")
 st.write(f"**Random Forest** — RMSE: {rf_metrics[0]:.2f}, R²: {rf_metrics[1]:.3f}")
 st.write(f"**XGBoost** — RMSE: {xgb_metrics[0]:.2f}, R²: {xgb_metrics[1]:.3f}")
+
