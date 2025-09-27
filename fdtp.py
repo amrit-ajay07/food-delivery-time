@@ -1,7 +1,5 @@
 import streamlit as st
 import pandas as pd
-import joblib
-import os
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.pipeline import Pipeline
@@ -137,3 +135,4 @@ st.write("---")
 st.subheader("📊 Model Test Performance")
 st.write(f"**Random Forest** — RMSE: {rf_metrics[0]:.2f}, R²: {rf_metrics[1]:.3f}")
 st.write(f"**XGBoost** — RMSE: {xgb_metrics[0]:.2f}, R²: {xgb_metrics[1]:.3f}")
+
